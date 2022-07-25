@@ -1,0 +1,2369 @@
+---
+openapi: 3.0.0
+info:
+  title: API Customers - Open Insurance Brasil
+  description: "API de dados cadastrais de clientes do Open Insurance Brasil – Fase 2.\nAPI que retorna os dados cadastrais de clientes e de seus representantes, incluindo dados de identificação, de qualificação, informações sobre representantes cadastrados e sobre o relacionamento do cliente com a instituição transmissora dos dados.\\\nPossui segregação entre pessoa natural e pessoa jurídica.\\\nRequer consentimento do cliente para todos os `endpoints`.\n\n# Orientações\nA `Role`  do diretório de participantes relacionada à presente API é a `DADOS`.\\\nPara todos os `endpoints` desta API é previsto o envio de um `token` através do header `Authorization`.\\\nEste token deverá estar relacionado ao consentimento (`consentId`) mantido na instituição transmissora dos dados, o qual permitirá a pesquisa e retorno, na API em questão, dos \ndados relacionados ao `consentId` específico relacionado.\\\nOs dados serão devolvidos na consulta desde que o `consentId` relacionado corresponda a um consentimento válido e com o status `AUTHORISED`.\\\nÉ também necessário que o recurso em questão (conta, contrato, etc) esteja disponível na instituição transmissora (ou seja, sem boqueios de qualquer natureza e com todas as autorizações/consentimentos já autorizados).\\\nAlém disso as `permissions` necessárias deverão ter sido solicitadas quando da criação do consentimento relacionado (`consentId`).\\\nRelacionamos a seguir as `permissions` necessárias para a consulta de dados em cada `endpoint` da presente API.\n\n## Permissions necessárias para a API Customers\n\nPara cada um dos paths desta API, além dos escopos (`scopes`) indicados existem `permissions` que deverão ser observadas:\n\n### `/personal/identifications`\n  - permissions:\n    - GET: **CUSTOMERS_PERSONAL_IDENTIFICATIONS_READ**\n### `/personal/qualifications`\n  - permissions: **CUSTOMERS_PERSONAL_QUALIFICATION_READ**\n### `/personal/complimentary-information`\n  - permissions:\n    - GET: **CUSTOMERS_PERSONAL_ADITTIONALINFO_READ**\n### `/business/identifications`\n  - permissions:\n    - GET: **CUSTOMERS_BUSINESS_IDENTIFICATIONS_READ**\n### `/business/qualifications`\n  - permissions:\n    - GET: **CUSTOMERS_BUSINESS_QUALIFICATION_READ**\n### `/business/complimentary-information`\n  - permissions:\n    - GET: **CUSTOMERS_BUSINESS_ADITTIONALINFO_READ**\n"
+  contact:
+    name: Governança do Open Insurance Brasil - Especificações
+    url: https://http://novosite.susep.gov.br
+    email: gt-interfaces@openinsurancebr.org
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  version: 1.0.3
+servers:
+- url: https://api.seguro.com.br/open-insurance/customers/v1
+  description: Servidor de Produção
+- url: https://apih.seguro.com.br/open-insurance/customers/v1
+  description: Servidor de Homologação
+tags:
+- name: Customers
+  description: Operações para listagem das informações Cadastrais do Cliente
+paths:
+  /personal/identifications:
+    get:
+      tags:
+      - Customers
+      summary: Obtém os registros de identificação da pessoa natural.
+      description: Método para obter os registros de identificação da pessoa natural mantidos na instituição transmissora.
+      operationId: customersGetPersonalIdentifications
+      parameters:
+      - name: Authorization
+        in: header
+        description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 2048
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-auth-date
+        in: header
+        description: 'Data em que o usuário logou pela última vez com o receptor. Representada de acordo com a [RFC7231](https://tools.ietf.org/html/rfc7231).Exemplo: Sun, 10 Sep 2017 19:43:31 UTC'
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 29
+          minLength: 29
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
+          type: string
+      - name: x-fapi-customer-ip-address
+        in: header
+        description: O endereço IP do usuário se estiver atualmente logado com o receptor.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-interaction-id
+        in: header
+        description: Um UID [RFC4122](https://tools.ietf.org/html/rfc4122) usado como um ID de correlação. Se fornecido, o transmissor deve "reproduzir" esse valor no cabeçalho de resposta.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+          type: string
+      - name: x-customer-user-agent
+        in: header
+        description: Indica o user-agent que o usuário utiliza.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      responses:
+        "200":
+          description: Dados sobre identificação pessoa física.
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePersonalCustomersIdentification'
+        "400":
+          description: A requisição foi malformada, omitindo atributos obrigatórios, seja no payload ou através de atributos na URL.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "401":
+          description: Cabeçalho de autenticação ausente/inválido ou token inválido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "403":
+          description: O token tem escopo incorreto ou uma política de segurança foi violada
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "404":
+          description: O recurso solicitado não existe ou não foi implementado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "405":
+          description: O consumidor tentou acessar o recurso com um método não suportado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "406":
+          description: A solicitação continha um cabeçalho Accept diferente dos tipos de mídia permitidos ou um conjunto de caracteres diferente de UTF-8
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "429":
+          description: A operação foi recusada, pois muitas solicitações foram feitas dentro de um determinado período ou o limite global de requisições concorrentes foi atingido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "500":
+          description: Ocorreu um erro no gateway da API ou no microsserviço
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        default:
+          description: Dados sobre identificação pessoa física.
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePersonalCustomersIdentification'
+      security:
+      - OAuth2Security:
+        - consent:consentId
+        - customers
+  /personal/qualifications:
+    get:
+      tags:
+      - Customers
+      summary: Obtém os registros de qualificação da pessoa natural.
+      description: Método para obter os registros de qualificação da pessoa natural mantidos na instituição transmissora.
+      operationId: customersGetPersonalQualifications
+      parameters:
+      - name: Authorization
+        in: header
+        description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 2048
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-auth-date
+        in: header
+        description: 'Data em que o usuário logou pela última vez com o receptor. Representada de acordo com a [RFC7231](https://tools.ietf.org/html/rfc7231).Exemplo: Sun, 10 Sep 2017 19:43:31 UTC'
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 29
+          minLength: 29
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
+          type: string
+      - name: x-fapi-customer-ip-address
+        in: header
+        description: O endereço IP do usuário se estiver atualmente logado com o receptor.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-interaction-id
+        in: header
+        description: Um UID [RFC4122](https://tools.ietf.org/html/rfc4122) usado como um ID de correlação. Se fornecido, o transmissor deve "reproduzir" esse valor no cabeçalho de resposta.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+          type: string
+      - name: x-customer-user-agent
+        in: header
+        description: Indica o user-agent que o usuário utiliza.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      responses:
+        "200":
+          description: Dados sobre qualificação da pessoa física
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePersonalCustomersQualification'
+        "400":
+          description: A requisição foi malformada, omitindo atributos obrigatórios, seja no payload ou através de atributos na URL.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "401":
+          description: Cabeçalho de autenticação ausente/inválido ou token inválido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "403":
+          description: O token tem escopo incorreto ou uma política de segurança foi violada
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "404":
+          description: O recurso solicitado não existe ou não foi implementado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "405":
+          description: O consumidor tentou acessar o recurso com um método não suportado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "406":
+          description: A solicitação continha um cabeçalho Accept diferente dos tipos de mídia permitidos ou um conjunto de caracteres diferente de UTF-8
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "429":
+          description: A operação foi recusada, pois muitas solicitações foram feitas dentro de um determinado período ou o limite global de requisições concorrentes foi atingido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "500":
+          description: Ocorreu um erro no gateway da API ou no microsserviço
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        default:
+          description: Dados sobre qualificação da pessoa física
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePersonalCustomersQualification'
+      security:
+      - OAuth2Security:
+        - consent:consentId
+        - customers
+  /personal/complimentary-information:
+    get:
+      tags:
+      - Customers
+      summary: Obtém os registros de relacionamentos com a instituição e de representantes da pessoa natural.
+      description: Método para obter registros de relacionamentos com a instituição e de representantes da pessoa natural mantidos na instituição transmissora.
+      operationId: customersGetPersonalComplimentaryInformation
+      parameters:
+      - name: Authorization
+        in: header
+        description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 2048
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-auth-date
+        in: header
+        description: 'Data em que o usuário logou pela última vez com o receptor. Representada de acordo com a [RFC7231](https://tools.ietf.org/html/rfc7231).Exemplo: Sun, 10 Sep 2017 19:43:31 UTC'
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 29
+          minLength: 29
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
+          type: string
+      - name: x-fapi-customer-ip-address
+        in: header
+        description: O endereço IP do usuário se estiver atualmente logado com o receptor.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-interaction-id
+        in: header
+        description: Um UID [RFC4122](https://tools.ietf.org/html/rfc4122) usado como um ID de correlação. Se fornecido, o transmissor deve "reproduzir" esse valor no cabeçalho de resposta.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+          type: string
+      - name: x-customer-user-agent
+        in: header
+        description: Indica o user-agent que o usuário utiliza.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      responses:
+        "200":
+          description: Dados sobre relacionamento da pessoa física
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePersonalCustomersComplimentaryInformation'
+        "400":
+          description: A requisição foi malformada, omitindo atributos obrigatórios, seja no payload ou através de atributos na URL.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "401":
+          description: Cabeçalho de autenticação ausente/inválido ou token inválido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "403":
+          description: O token tem escopo incorreto ou uma política de segurança foi violada
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "404":
+          description: O recurso solicitado não existe ou não foi implementado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "405":
+          description: O consumidor tentou acessar o recurso com um método não suportado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "406":
+          description: A solicitação continha um cabeçalho Accept diferente dos tipos de mídia permitidos ou um conjunto de caracteres diferente de UTF-8
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "429":
+          description: A operação foi recusada, pois muitas solicitações foram feitas dentro de um determinado período ou o limite global de requisições concorrentes foi atingido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "500":
+          description: Ocorreu um erro no gateway da API ou no microsserviço
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        default:
+          description: Dados sobre relacionamento da pessoa física
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePersonalCustomersComplimentaryInformation'
+      security:
+      - OAuth2Security:
+        - consent:consentId
+        - customers
+  /business/identifications:
+    get:
+      tags:
+      - Customers
+      summary: Obtém os registros de identificação da pessoa jurídica.
+      description: Método para obter os registros de identificação da pessoa jurídica mantidos na instituição transmissora
+      operationId: customersGetBusinessIdentifications
+      parameters:
+      - name: Authorization
+        in: header
+        description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 2048
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-auth-date
+        in: header
+        description: 'Data em que o usuário logou pela última vez com o receptor. Representada de acordo com a [RFC7231](https://tools.ietf.org/html/rfc7231).Exemplo: Sun, 10 Sep 2017 19:43:31 UTC'
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 29
+          minLength: 29
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
+          type: string
+      - name: x-fapi-customer-ip-address
+        in: header
+        description: O endereço IP do usuário se estiver atualmente logado com o receptor.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-interaction-id
+        in: header
+        description: Um UID [RFC4122](https://tools.ietf.org/html/rfc4122) usado como um ID de correlação. Se fornecido, o transmissor deve "reproduzir" esse valor no cabeçalho de resposta.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+          type: string
+      - name: x-customer-user-agent
+        in: header
+        description: Indica o user-agent que o usuário utiliza.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      responses:
+        "200":
+          description: Dados sobre identificação pessoa jurídica
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBusinessCustomersIdentification'
+        "400":
+          description: A requisição foi malformada, omitindo atributos obrigatórios, seja no payload ou através de atributos na URL.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "401":
+          description: Cabeçalho de autenticação ausente/inválido ou token inválido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "403":
+          description: O token tem escopo incorreto ou uma política de segurança foi violada
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "404":
+          description: O recurso solicitado não existe ou não foi implementado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "405":
+          description: O consumidor tentou acessar o recurso com um método não suportado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "406":
+          description: A solicitação continha um cabeçalho Accept diferente dos tipos de mídia permitidos ou um conjunto de caracteres diferente de UTF-8
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "429":
+          description: A operação foi recusada, pois muitas solicitações foram feitas dentro de um determinado período ou o limite global de requisições concorrentes foi atingido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "500":
+          description: Ocorreu um erro no gateway da API ou no microsserviço
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        default:
+          description: Dados sobre identificação pessoa jurídica
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBusinessCustomersIdentification'
+      security:
+      - OAuth2Security:
+        - consent:consentId
+        - customers
+  /business/qualifications:
+    get:
+      tags:
+      - Customers
+      summary: Obtém os registros de qualificação da pessoa jurídica.
+      description: Método para obter os registros de qualificação da pessoa jurídica mantidos na instituição transmissora.
+      operationId: customersGetBusinessQualifications
+      parameters:
+      - name: Authorization
+        in: header
+        description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 2048
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-auth-date
+        in: header
+        description: 'Data em que o usuário logou pela última vez com o receptor. Representada de acordo com a [RFC7231](https://tools.ietf.org/html/rfc7231).Exemplo: Sun, 10 Sep 2017 19:43:31 UTC'
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 29
+          minLength: 29
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
+          type: string
+      - name: x-fapi-customer-ip-address
+        in: header
+        description: O endereço IP do usuário se estiver atualmente logado com o receptor.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-interaction-id
+        in: header
+        description: Um UID [RFC4122](https://tools.ietf.org/html/rfc4122) usado como um ID de correlação. Se fornecido, o transmissor deve "reproduzir" esse valor no cabeçalho de resposta.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+          type: string
+      - name: x-customer-user-agent
+        in: header
+        description: Indica o user-agent que o usuário utiliza.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      responses:
+        "200":
+          description: Dados sobre qualificação pessoa jurídica
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBusinessCustomersQualification'
+        "400":
+          description: A requisição foi malformada, omitindo atributos obrigatórios, seja no payload ou através de atributos na URL.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "401":
+          description: Cabeçalho de autenticação ausente/inválido ou token inválido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "403":
+          description: O token tem escopo incorreto ou uma política de segurança foi violada
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "404":
+          description: O recurso solicitado não existe ou não foi implementado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "405":
+          description: O consumidor tentou acessar o recurso com um método não suportado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "406":
+          description: A solicitação continha um cabeçalho Accept diferente dos tipos de mídia permitidos ou um conjunto de caracteres diferente de UTF-8
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "429":
+          description: A operação foi recusada, pois muitas solicitações foram feitas dentro de um determinado período ou o limite global de requisições concorrentes foi atingido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "500":
+          description: Ocorreu um erro no gateway da API ou no microsserviço
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        default:
+          description: Dados sobre qualificação pessoa jurídica
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBusinessCustomersQualification'
+      security:
+      - OAuth2Security:
+        - consent:consentId
+        - customers
+  /business/complimentary-information:
+    get:
+      tags:
+      - Customers
+      summary: Obtém os registros de relacionamentos com a instituição e de representantes da pessoa jurídica.
+      description: Método para obter registros de relacionamentos com a instituição e de representantes da pessoa jurídica mantidos na instituição transmissora.
+      operationId: customersGetBusinessComplimentaryInformation
+      parameters:
+      - name: Authorization
+        in: header
+        description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+        required: true
+        style: simple
+        explode: false
+        schema:
+          maxLength: 2048
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-auth-date
+        in: header
+        description: 'Data em que o usuário logou pela última vez com o receptor. Representada de acordo com a [RFC7231](https://tools.ietf.org/html/rfc7231).Exemplo: Sun, 10 Sep 2017 19:43:31 UTC'
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 29
+          minLength: 29
+          pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
+          type: string
+      - name: x-fapi-customer-ip-address
+        in: header
+        description: O endereço IP do usuário se estiver atualmente logado com o receptor.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      - name: x-fapi-interaction-id
+        in: header
+        description: Um UID [RFC4122](https://tools.ietf.org/html/rfc4122) usado como um ID de correlação. Se fornecido, o transmissor deve "reproduzir" esse valor no cabeçalho de resposta.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+          type: string
+      - name: x-customer-user-agent
+        in: header
+        description: Indica o user-agent que o usuário utiliza.
+        required: false
+        style: simple
+        explode: false
+        schema:
+          maxLength: 100
+          minLength: 1
+          pattern: '[\w\W\s]*'
+          type: string
+      responses:
+        "200":
+          description: Dados sobre relacionamento pessoa jurídica
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBusinessCustomersComplimentaryInformation'
+        "400":
+          description: A requisição foi malformada, omitindo atributos obrigatórios, seja no payload ou através de atributos na URL.
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "401":
+          description: Cabeçalho de autenticação ausente/inválido ou token inválido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "403":
+          description: O token tem escopo incorreto ou uma política de segurança foi violada
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "404":
+          description: O recurso solicitado não existe ou não foi implementado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "405":
+          description: O consumidor tentou acessar o recurso com um método não suportado
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "406":
+          description: A solicitação continha um cabeçalho Accept diferente dos tipos de mídia permitidos ou um conjunto de caracteres diferente de UTF-8
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "429":
+          description: A operação foi recusada, pois muitas solicitações foram feitas dentro de um determinado período ou o limite global de requisições concorrentes foi atingido
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        "500":
+          description: Ocorreu um erro no gateway da API ou no microsserviço
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        default:
+          description: Dados sobre relacionamento pessoa jurídica
+          headers:
+            x-fapi-interaction-id:
+              style: simple
+              explode: false
+              schema:
+                $ref: '#/components/schemas/XFapiInteractionId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBusinessCustomersComplimentaryInformation'
+      security:
+      - OAuth2Security:
+        - consent:consentId
+        - customers
+components:
+  schemas:
+    BusinessComplimentaryInformationData:
+      required:
+      - policies
+      - procurators
+      - productsServicesType
+      - startDate
+      - updateDateTime
+      type: object
+      properties:
+        updateDateTime:
+          maxLength: 20
+          pattern: ^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])T(?:[01]\d|2[0123]):(?:[012345]\d):(?:[012345]\d)Z$
+          type: string
+          description: Data e hora da atualização do bloco de Relacionamento, conforme especificação RFC-3339, formato UTC.
+          format: date-time
+          example: 2020-07-21T08:30:00Z
+        startDate:
+          maxLength: 20
+          pattern: ^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])T(?:[01]\d|2[0123]):(?:[012345]\d):(?:[012345]\d)Z$
+          type: string
+          description: Campo deve ser preenchido com a data da apólice/contrato vigente mais antiga
+          format: date-time
+          example: 2020-07-21T08:30:00Z
+        productsServicesType:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/EnumProductServiceType'
+        procurators:
+          minItems: 1
+          type: array
+          description: Lista dos representantes. De preenchimento obrigatório se houver representante.
+          items:
+            $ref: '#/components/schemas/BusinessProcurator'
+        policies:
+          minItems: 1
+          type: array
+          description: "Lista deve conter todas os contratos vigentes do cliente na instituição transmissora.    \n"
+          items:
+            $ref: '#/components/schemas/BusinessPolicies'
+      additionalProperties: false
+      description: Objeto que reúne as informações relativas ao relacionamento do cliente junto à Instituição. Considera-se relacionamento as informações que permitam conhecer desde quando a pessoa consultada é cliente da instituição, bem como um indicador dos produtos e serviços que ela consome atualmente e seus representantes
+    BusinessIdentificationData:
+      required:
+      - brandName
+      - businessId
+      - businessName
+      - businessRegisterOriginCountry
+      - companyCnpj
+      - companyName
+      - contact
+      - document
+      - updateDateTime
+      type: object
+      properties:
+        updateDateTime:
+          maxLength: 20
+          type: string
+          description: Data e hora da atualização do bloco, conforme especificação RFC-3339
+          format: date-time
+          example: 2021-05-21T08:30:00Z
+        businessId:
+          maxLength: 100
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+          type: string
+          description: Um identificador único e imutável usado para identificar o recurso cliente pessoa jurídica dentro da transmissora. Este identificador não tem significado para o cliente que deu o consentimento
+          example: 578-psd-71md6971kjh-2d414
+        brandName:
+          maxLength: 80
+          pattern: '[\w\W\s]*'
+          type: string
+          description: |
+            Nome da Marca reportada pelo participante do Open Insurance. O conceito a que se refere a 'marca' é em essência uma promessa da empresa em fornecer uma série específica de atributos, benefícios e serviços uniformes aos clientes
+          example: Organização A
+        companyInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessIdentificationData_companyInfo'
+        businessName:
+          maxLength: 70
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Razão social da empresa consultada é o termo registrado sob o qual uma pessoa jurídica (PJ) se individualiza e exerce suas atividades. Também pode ser chamada por denominação social ou firma empresarial
+          example: Luiza e Benjamin Assessoria Jurídica Ltda
+        businessRegisterOriginCountry:
+          maxLength: 3
+          type: string
+          description: Código do pais de acordo com o código “alpha3” do ISO-3166
+          example: BRA
+        document:
+          $ref: '#/components/schemas/BusinessDocument'
+        type:
+          maxLength: 7
+          type: string
+          description: Campo deve ser preenchido com o Tipo Pessoa Jurídica
+          enum:
+          - PRIVADO
+          - PUBLICO
+          - NAO_SE_APLICA
+        contact:
+          $ref: '#/components/schemas/BusinessContact'
+      description: Conjunto de informações relativas a Identificação ou seja a ação e o efeito de identificar de forma única a pessoa jurídica através de seus dados cadastrais
+    BusinessProcurator:
+      required:
+      - civilName
+      - cnpjCpfNumber
+      - type
+      type: object
+      properties:
+        type:
+          maxLength: 19
+          type: string
+          description: |
+            Tipo de representante.
+            Representante legal - Nome Civil completo da Pessoa Natural que represente uma entidade ou uma empresa e é nomeado em seu ato constitutivo, ou seja, no contrato social ou estatuto social.
+            Procurador - é qualquer pessoa que represente a Pessoa Natural em algum negócio, mediante autorização escrita do mesmo.
+          example: PROCURADOR
+          enum:
+          - REPRESENTANTE_LEGAL
+          - PROCURADOR
+        cnpjCpfNumber:
+          maxLength: 14
+          pattern: ^\d{11}$|^\d{14}$|^NA$
+          type: string
+          description: Identificação do Representante Legal ou Procurador. Número do cadastro nas Receita Federal  (Preencher com CPF ou CNPJ sem formatação)
+          example: "73677831148"
+        civilName:
+          maxLength: 70
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Nome civil completo ou Razão Social
+          example: Elza Milena Stefany Teixeira
+      additionalProperties: false
+    BusinessQualificationData:
+      required:
+      - informedRevenue
+      - lifePensionPlans
+      - updateDateTime
+      type: object
+      properties:
+        updateDateTime:
+          maxLength: 20
+          type: string
+          description: Data e hora da atualização do bloco, conforme especificação RFC-3339
+          format: date-time
+          example: 2021-05-21T08:30:00Z
+        lifePensionPlans:
+          type: string
+          description: Condição de proponente qualificado, aplicável à contratação de planos de previdência e vida por sobrevivência
+          enum:
+          - SIM
+          - NAO
+          - NAO_SE_APLICA
+        informedRevenue:
+          $ref: '#/components/schemas/BusinessQualificationData_informedRevenue'
+      additionalProperties: false
+      description: Objeto que reúne as informações relativas ao processo de qualificação.
+    BusinessContact:
+      required:
+      - emails
+      - phones
+      - postalAddresses
+      type: object
+      properties:
+        postalAddresses:
+          minItems: 1
+          type: array
+          description: Lista de endereços da pessoa jurídica
+          items:
+            $ref: '#/components/schemas/BusinessPostalAddress'
+        phones:
+          minItems: 1
+          type: array
+          description: Lista com telefones de contato da pessoa jurídica
+          items:
+            $ref: '#/components/schemas/CustomerPhone'
+        emails:
+          minItems: 1
+          type: array
+          description: Lista e-mails de contato
+          items:
+            $ref: '#/components/schemas/CustomerEmail'
+      additionalProperties: false
+      description: Conjunto de informações referentes às formas para contatar o cliente.
+    PersonalContact:
+      required:
+      - emails
+      - phones
+      - postalAddresses
+      type: object
+      properties:
+        postalAddresses:
+          minItems: 1
+          type: array
+          description: Lista de endereços da pessoa natural
+          items:
+            $ref: '#/components/schemas/PersonalPostalAddress'
+        phones:
+          minItems: 1
+          type: array
+          description: Lista com telefones de contato da pessoa natural
+          items:
+            $ref: '#/components/schemas/CustomerPhone'
+        emails:
+          minItems: 1
+          type: array
+          description: Lista e-mails de contato
+          items:
+            $ref: '#/components/schemas/CustomerEmail'
+      additionalProperties: false
+      description: Conjunto de informações referentes às formas para contatar o cliente.
+    CustomerEmail:
+      type: object
+      properties:
+        email:
+          maxLength: 320
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Endereço de email
+          example: karinafernandes-81@br.inter.net
+      additionalProperties: false
+    CustomerPhone:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/EnumCustomerPhoneType'
+        additionalInfo:
+          maxLength: 70
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Informação complementar relativa ao tipo de telefone selecionado. [Restrição] De preenchimento obrigatório quando selecionado o tipo 'OUTRO'.
+          example: Informações adicionais.
+        countryCallingCode:
+          maxLength: 4
+          pattern: ^\d{2,4}$|^NA$
+          type: string
+          description: Número de DDI (Discagem Direta Internacional) para telefone de acesso ao Cliente - se houver
+          example: "55"
+        areaCode:
+          $ref: '#/components/schemas/EnumAreaCode'
+        number:
+          maxLength: 11
+          pattern: ^([0-9]{8,11})|^NA$
+          type: string
+          description: Número de telefone do cliente
+          example: "29875132"
+        phoneExtension:
+          maxLength: 5
+          pattern: ^\d{1,5}$|^NA$
+          type: string
+          description: Número do ramal. De preenchimento obrigatório se fizer parte da identificação do número do telefone informado
+          example: "932"
+      additionalProperties: false
+    BusinessPostalAddress:
+      required:
+      - address
+      - country
+      - countrySubDivision
+      - number
+      - postCode
+      - townName
+      type: object
+      properties:
+        address:
+          maxLength: 150
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Corresponde ao endereço residencial do cliente.
+          example: Av Naburo Ykesaki, 1270
+        number:
+          maxLength: 10
+          type: string
+          description: Número (Logradouro)
+        additionalInfo:
+          maxLength: 30
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Alguns logradouros ainda necessitam ser especificados por meio de complemento.
+          example: Fundos
+        districtName:
+          maxLength: 50
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.
+          example: Centro
+        townName:
+          maxLength: 50
+          pattern: '[\w\W\s]*'
+          type: string
+          description: |
+            Localidade: O nome da localidade corresponde à designação da cidade ou município no qual o endereço está localizado.
+          example: Marília
+        countrySubDivision:
+          $ref: '#/components/schemas/EnumCountrySubDivision'
+        postCode:
+          maxLength: 8
+          pattern: \d{8}|^NA$
+          type: string
+          description: |
+            Código de Endereçamento Postal: Composto por um conjunto numérico de oito dígitos, o objetivo principal do CEP é orientar e acelerar o encaminhamento, o tratamento e a entrega de objetos postados nos Correios, por meio da sua atribuição a localidades, logradouros, unidades dos Correios, serviços, órgãos públicos, empresas e edifícios. p.ex. '01311000'.
+          example: "17500001"
+        country:
+          $ref: '#/components/schemas/EnumCountry'
+      additionalProperties: false
+    PersonalPostalAddress:
+      required:
+      - address
+      - country
+      - countrySubDivision
+      - number
+      - postCode
+      - townName
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          example: RESIDENCIAL
+          enum:
+          - COBRANCA,
+          - RESIDENCIAL,
+          - COMERCIAL
+        address:
+          maxLength: 150
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Corresponde ao endereço residencial do cliente.
+          example: Av Naburo Ykesaki, 1270
+        number:
+          maxLength: 10
+          type: string
+          description: Número (Logradouro)
+        additionalInfo:
+          maxLength: 30
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Alguns logradouros ainda necessitam ser especificados por meio de complemento.
+          example: Fundos
+        districtName:
+          maxLength: 50
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.
+          example: Centro
+        townName:
+          maxLength: 50
+          pattern: '[\w\W\s]*'
+          type: string
+          description: |
+            Localidade: O nome da localidade corresponde à designação da cidade ou município no qual o endereço está localizado.
+          example: Marília
+        countrySubDivision:
+          $ref: '#/components/schemas/EnumCountrySubDivision'
+        postCode:
+          maxLength: 8
+          pattern: \d{8}|^NA$
+          type: string
+          description: |
+            Código de Endereçamento Postal: Composto por um conjunto numérico de oito dígitos, o objetivo principal do CEP é orientar e acelerar o encaminhamento, o tratamento e a entrega de objetos postados nos Correios, por meio da sua atribuição a localidades, logradouros, unidades dos Correios, serviços, órgãos públicos, empresas e edifícios. p.ex. '01311000'.
+          example: "17500001"
+        country:
+          $ref: '#/components/schemas/EnumCountry'
+      additionalProperties: false
+    BusinessPolicies:
+      required:
+      - number
+      - type
+      type: object
+      properties:
+        number:
+          maxLength: 20
+          pattern: ^\d{0,99}$
+          type: string
+          description: |
+            Número do da apólice individual, ou contrato, ou certificado ou bilhete.
+          example: "24550245"
+        type:
+          type: string
+          example: APOLICE
+          enum:
+          - APOLICE
+          - CONTRATO
+          - CERTIFICADO
+          - BILHETE
+      additionalProperties: false
+    PersonalPolicies:
+      required:
+      - number
+      - type
+      type: object
+      properties:
+        number:
+          $ref: '#/components/schemas/BusinessPolicies/properties/number'
+        type:
+          $ref: '#/components/schemas/BusinessPolicies/properties/type'
+      additionalProperties: false
+      description: |
+        Lista deve conter todas os contratos vigentes do cliente na instituição transmissora.
+    EnumAreaCode:
+      maxLength: 2
+      type: string
+      description: Número de DDD (Discagem Direta à Distância) do telefone do cliente - se houver
+      example: "19"
+      enum:
+      - "11"
+      - "12"
+      - "13"
+      - "14"
+      - "15"
+      - "16"
+      - "17"
+      - "18"
+      - "19"
+      - "21"
+      - "22"
+      - "24"
+      - "27"
+      - "28"
+      - "31"
+      - "32"
+      - "33"
+      - "34"
+      - "35"
+      - "37"
+      - "38"
+      - "41"
+      - "42"
+      - "43"
+      - "44"
+      - "45"
+      - "46"
+      - "47"
+      - "48"
+      - "49"
+      - "51"
+      - "53"
+      - "54"
+      - "55"
+      - "61"
+      - "62"
+      - "63"
+      - "64"
+      - "65"
+      - "66"
+      - "67"
+      - "68"
+      - "69"
+      - "71"
+      - "73"
+      - "74"
+      - "75"
+      - "77"
+      - "79"
+      - "81"
+      - "82"
+      - "83"
+      - "84"
+      - "85"
+      - "86"
+      - "87"
+      - "88"
+      - "89"
+      - "91"
+      - "92"
+      - "93"
+      - "94"
+      - "95"
+      - "96"
+      - "97"
+      - "98"
+      - "99"
+      - NA
+    EnumCountry:
+      type: string
+      description: Lista de países.
+      example: BRASIL
+      enum:
+      - ANDORRA
+      - EMIRADOS_ARABES_UNIDOS
+      - AFEGANISTAO
+      - ANTIGUA_E_BARBUDA
+      - ANGUILLA
+      - ALBANIA
+      - ARMENIA
+      - ANTILHAS_HOLANDESAS
+      - ANGOLA
+      - ANTARTIDA
+      - ARGENTINA
+      - SAMOA_AMERICANA
+      - AUSTRIA
+      - AUSTRALIA
+      - ARUBA
+      - ILHAS_ALAND
+      - AZERBAIJAO
+      - BOSNIA_HERZEGOVINA
+      - BARBADOS
+      - BANGLADESH
+      - BELGICA
+      - BURKINA_FASSO
+      - BULGARIA
+      - BAHREIN
+      - BURUNDI
+      - BENIN
+      - SAO_BARTOLOMEU
+      - BERMUDAS
+      - BRUNEI
+      - BOLIVIA
+      - BONAIRE_SINT_EUSTATIUS_E_SABA
+      - BRASIL
+      - BAHAMAS
+      - BUTAO
+      - ILHA_BOUVET_TERRITORIO_DA_NORUEGA
+      - BOTSUANA
+      - BELARUS
+      - BELIZE
+      - CANADA
+      - ILHAS_COCOS
+      - REPUBLICA_DEMOCRATICA_DO_CONGO_EX_ZAIRE
+      - REPUBLICA_CENTRO_AFRICANA
+      - CONGO
+      - SUICA
+      - COSTA_DO_MARFIM
+      - ILHAS_COOK
+      - CHILE
+      - CAMAROES
+      - CHINA
+      - COLOMBIA
+      - COSTA_RICA
+      - CUBA
+      - CABO_VERDE
+      - CURACAO
+      - ILHA_NATAL
+      - CHIPRE
+      - REPUBLICA_TCHECA
+      - ALEMANHA
+      - DJIBUTI
+      - DINAMARCA
+      - DOMINICA
+      - REPUBLICA_DOMINICANA
+      - ARGELIA
+      - EQUADOR
+      - ESTONIA
+      - EGITO
+      - SAARA_OCIDENTAL_EX_SPANISH_SAHARA
+      - ERITREIA
+      - ESPANHA
+      - ETIOPIA
+      - FINLANDIA
+      - FIJI
+      - ILHAS_FALKLAND_MALVINAS
+      - MICRONESIA
+      - ILHAS_FAROES
+      - FRANCA
+      - GABAO
+      - GRA_BRETANHA_REINO_UNIDO_UK
+      - GRANADA
+      - GEORGIA
+      - GUIANA_FRANCESA
+      - GUERNSEY
+      - GANA
+      - GIBRALTAR
+      - GROELANDIA
+      - GAMBIA
+      - GUINE
+      - GUADALUPE
+      - GUINE_EQUATORIAL
+      - GRECIA
+      - ILHAS_GEORGIA_DO_SUL_E_SANDWICH_DO_SUL
+      - GUATEMALA
+      - GUAM_TERRITORIO_DOS_ESTADOS_UNIDOS
+      - GUINE_BISSAU
+      - GUIANA
+      - HONG_KONG
+      - ILHAS_HEARD_E_MCDONALD_TERRITORIO_DA_AUSTRALIA
+      - HONDURAS
+      - CROACIA_HRVATSKA
+      - HAITI
+      - HUNGRIA
+      - INDONESIA
+      - IRLANDA
+      - ISRAEL
+      - ILHA_DO_HOMEM
+      - INDIA
+      - TERRITORIO_BRITANICO_DO_OCEANO_INDICO
+      - IRAQUE
+      - IRA
+      - ISLANDIA
+      - ITALIA
+      - JERSEY
+      - JAMAICA
+      - JORDANIA
+      - JAPAO
+      - KENIA
+      - KYRGYZSTAN
+      - CAMBOJA
+      - KIRIBATI
+      - ILHAS_COMORES
+      - SAO_CRISTOVAO_E_NEVIS
+      - COREIA_DO_NORTE
+      - COREIA_DO_SUL
+      - KUAIT
+      - ILHAS_CAYMAN
+      - CAZAQUISTAO
+      - LAOS
+      - LIBANO
+      - SANTA_LUCIA
+      - LIECHTENSTEIN
+      - SRI_LANKA
+      - LIBERIA
+      - LESOTO
+      - LITUANIA
+      - LUXEMBURGO
+      - LATVIA
+      - LIBIA
+      - MARROCOS
+      - MONACO
+      - MOLDOVA
+      - MONTENEGRO
+      - SAO_MARTIM
+      - MADAGASCAR
+      - ILHAS_MARSHALL
+      - MACEDONIA_REPUBLICA_YUGOSLAVA
+      - MALI
+      - MYANMA_EX_BURMA
+      - MONGOLIA
+      - MACAU
+      - ILHAS_MARIANAS_DO_NORTE
+      - MARTINICA
+      - MAURITANIA
+      - MONTSERRAT
+      - MALTA
+      - MAURICIO
+      - MALDIVAS
+      - MALAUI
+      - MEXICO
+      - MALASIA
+      - MOCAMBIQUE
+      - NAMIBIA
+      - NOVA_CALEDONIA
+      - NIGER
+      - ILHAS_NORFOLK
+      - NIGERIA
+      - NICARAGUA
+      - HOLANDA
+      - NORUEGA
+      - NEPAL
+      - NAURU
+      - NIUE
+      - NOVA_ZELANDIA
+      - OMA
+      - PANAMA
+      - PERU
+      - POLINESIA_FRANCESA
+      - PAPUA_NOVA_GUINE
+      - FILIPINAS
+      - PAQUISTAO
+      - POLONIA
+      - ST_PIERRE_AND_MIQUELON
+      - ILHA_PITCAIRN
+      - PORTO_RICO
+      - TERRITORIOS_PALESTINOS_OCUPADOS
+      - PORTUGAL
+      - PALAU
+      - PARAGUAI
+      - QATAR
+      - ILHA_REUNIAO
+      - ROMENIA
+      - SERVIA
+      - FEDERACAO_RUSSA
+      - RUANDA
+      - ARABIA_SAUDITA
+      - ILHAS_SOLOMAO
+      - ILHAS_SEYCHELLES
+      - SUDAO
+      - SUECIA
+      - CINGAPURA
+      - SANTA_HELENA
+      - ESLOVENIA
+      - ILHAS_SVALBARD_E_JAN_MAYEN
+      - ESLOVAQUIA
+      - SERRA_LEOA
+      - SAN_MARINO
+      - SENEGAL
+      - SOMALIA
+      - SURINAME
+      - SUDAO_DO_SUL
+      - SAO_TOME_E_PRINCIPE
+      - EL_SALVADOR
+      - SAO_MARTINHO_PARTE_HOLANDESA
+      - SIRIA
+      - SUAZILANDIA
+      - ILHAS_TURKS_E_CAICOS
+      - CHADE
+      - TERRITORIOS_DO_SUL_DA_FRANCA
+      - TOGO
+      - TAILANDIA
+      - TADJIQUISTAO
+      - ILHAS_TOKELAU
+      - TIMOR_LESTE_EX_EAST_TIMOR
+      - TURCOMENISTAO
+      - TUNISIA
+      - TONGA
+      - TURQUIA
+      - TRINIDAD_AND_TOBAGO
+      - TUVALU
+      - TAIWAN
+      - TANZANIA
+      - UCRANIA
+      - UGANDA
+      - ILHAS_MENORES_DOS_ESTADOS_UNIDOS
+      - ESTADOS_UNIDOS
+      - URUGUAI
+      - UZBEQUISTAO
+      - VATICANO
+      - SAINT_VINCENTE_E_GRANADINAS
+      - VENEZUELA
+      - ILHAS_VIRGENS_INGLATERRA
+      - ILHAS_VIRGENS_ESTADOS_UNIDOS
+      - VIETNAM
+      - VANUATU
+      - ILHAS_WALLIS_E_FUTUNA
+      - SAMOA_OCIDENTAL
+      - IEMEN
+      - MAYOTTE
+      - AFRICA_DO_SUL
+      - ZAMBIA
+      - ZIMBABUE
+    EnumCountrySubDivision:
+      type: string
+      description: Enumeração referente a cada sigla da unidade da federação que identifica o estado ou o distrito federal, no qual o endereço está localizado. p.ex. 'AC'. São consideradas apenas as siglas para os estados brasileiros
+      example: SP
+      enum:
+      - AC
+      - AL
+      - AP
+      - AM
+      - BA
+      - CE
+      - DF
+      - ES
+      - GO
+      - MA
+      - MT
+      - MS
+      - MG
+      - PA
+      - PB
+      - PR
+      - PE
+      - PI
+      - RJ
+      - RN
+      - RS
+      - RO
+      - RR
+      - SC
+      - SP
+      - SE
+      - TO
+      - NA
+    EnumCustomerPhoneType:
+      maxLength: 5
+      type: string
+      description: Identificação do Tipo de telefone do cliente.
+      example: FIXO
+      enum:
+      - FIXO
+      - MOVEL
+      - OUTRO
+    EnumCivilStatusCode:
+      type: string
+      description: "Estado civil do cliente. \n"
+      example: SOLTEIRO
+      enum:
+      - SOLTEIRO
+      - CASADO
+      - VIUVO
+      - DIVORCIADO_SEPARADO
+    EnumProcuratorsTypePersonal:
+      maxLength: 19
+      type: string
+      description: |
+        Tipo de representante.
+        Representante legal - Nome Civil completo da Pessoa Natural que represente uma entidade ou uma empresa e é nomeado em seu ato constitutivo, ou seja, no contrato social ou estatuto social.
+        Procurador - é qualquer pessoa que represente a Pessoa Natural em algum negócio, mediante autorização escrita do mesmo.
+      example: PROCURADOR
+      enum:
+      - REPRESENTANTE_LEGAL
+      - PROCURADOR
+      - NAO_APLICA
+    EnumProductServiceType:
+      maxLength: 24
+      type: string
+      description: Lista com a relação dos produtos e serviços com contrato vigente.
+      example: MICROSSEGUROS
+      enum:
+      - MICROSSEGUROS
+      - TITULOS_DE_CAPITALIZACAO
+      - SEGUROS_DE_PESSOAS
+      - PLANOS_DE_PREVIDENCIA_COMPLEMENTAR
+      - SEGUROS_DE_DANOS
+    Links:
+      required:
+      - self
+      type: object
+      properties:
+        self:
+          maxLength: 2000
+          pattern: ^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$
+          type: string
+          description: URI completo que gerou a resposta atual.
+          format: uri
+          example: https://api.seguro.com.br/open-insurance/customer/v1
+        first:
+          maxLength: 2000
+          pattern: ^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$
+          type: string
+          description: URI da primeira página que originou essa lista de resultados. Restrição - Obrigatório quando não for a primeira página da resposta
+          format: uri
+          example: https://api.seguro.com.br/open-insurance/customer/v1
+        prev:
+          maxLength: 2000
+          pattern: ^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$
+          type: string
+          description: "URI da página anterior dessa lista de resultados. Restrição - \tObrigatório quando não for a primeira página da resposta"
+          format: uri
+          example: https://api.seguro.com.br/open-insurance/customer/v1
+        next:
+          maxLength: 2000
+          pattern: ^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$
+          type: string
+          description: URI da próxima página dessa lista de resultados. Restrição - Obrigatório quando não for a última página da resposta
+          format: uri
+          example: https://api.seguro.com.br/open-insurance/customer/v1
+        last:
+          maxLength: 2000
+          pattern: ^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)$
+          type: string
+          description: URI da última página dessa lista de resultados. Restrição - Obrigatório quando não for a última página da resposta
+          format: uri
+          example: https://api.seguro.com.br/open-insurance/customer/v1
+      additionalProperties: false
+      description: Referências para outros recusos da API requisitada.
+    Meta:
+      required:
+      - requestDateTime
+      - totalPages
+      - totalRecords
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Número total de registros no resultado
+          format: int32
+          example: 1
+        totalPages:
+          type: integer
+          description: Número total de páginas no resultado
+          format: int32
+          example: 1
+        requestDateTime:
+          maxLength: 20
+          type: string
+          description: Data e hora da consulta, conforme especificação RFC-3339, formato UTC.
+          format: date-time
+          example: 2021-05-21T08:30:00Z
+      additionalProperties: false
+      description: Meta informações referente à API requisitada.
+    PersonalDocument:
+      type: object
+      properties:
+        cpfNumber:
+          maxLength: 11
+          pattern: ^\d{11}$|^NA$
+          type: string
+          description: |
+            Número completo do CPF. Atributo que corresponde às informações mínimas exigidas pela Regulamentação em vigor. O CPF é o Cadastro de Pessoa natural.  Ele é um documento feito pela Receita Federal e serve para identificar os contribuintes. O CPF é uma numeração com 11 dígitos, que só mudam por decisão judicial. O documento é emitido pela receita federal
+            Condicional a seleção de true em hasBrazilianNationality
+        foreignDocument:
+          maxLength: 20
+          type: string
+          description: "Condicional a seleção de false em hasBrazilianNationality \n"
+          example: "75253468744594820620"
+      additionalProperties: false
+      description: Objeto agrupador de informações relativas a Documentos da pessoa natural
+    BusinessDocument:
+      type: object
+      properties:
+        businesscnpjNumber:
+          maxLength: 14
+          pattern: \d{14}|^NA$
+          type: string
+          description: |
+            Número completo do CNPJ da Empresa consultada  - o CNPJ corresponde ao número de inscrição no Cadastro de Pessoa Jurídica. Deve-se ter apenas os números do CNPJ, sem máscara
+            Condicional ao Brasil no (BRA) campo País de emissão do documento de registro
+          example: "50685362006773"
+        businessRegisterNumberOriginCountry:
+          maxLength: 20
+          type: string
+          description: |
+            Aplicável somente as pessoas jurídicas com domicílio ou sede no exterior desobrigadas de inscrição no CNPJ.
+      additionalProperties: false
+      description: Objeto agrupador de informações relativas a Documentos da pessoa natural
+    PersonalComplimentaryInformationData:
+      required:
+      - partnerCivilName
+      - partnerCpfNumber
+      - policies
+      - procurators
+      - productsServicesType
+      - startDate
+      - updateDateTime
+      type: object
+      properties:
+        updateDateTime:
+          maxLength: 20
+          pattern: ^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])T(?:[01]\d|2[0123]):(?:[012345]\d):(?:[012345]\d)Z$
+          type: string
+          description: Data e hora da atualização do bloco de Relacionamento, conforme especificação RFC-3339, formato UTC.
+          format: date-time
+          example: 2021-05-21T08:30:00Z
+        startDate:
+          maxLength: 20
+          pattern: ^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])T(?:[01]\d|2[0123]):(?:[012345]\d):(?:[012345]\d)Z$
+          type: string
+          description: Campo deve ser preenchido com a data da apólice/contrato vigente mais antiga
+          format: date-time
+          example: 2021-05-21T08:30:00Z
+        partnerCpfNumber:
+          maxLength: 11
+          pattern: ^\d{11}$|^NA$
+          type: string
+          description: Número completo do CPF. O CPF é o Cadastro de Pessoa natural. Ele é um documento feito pela Receita Federal e serve para identificar os contribuintes. O CPF é uma numeração com 11 dígitos, que só mudam por decisão judicial. O documento é emitido pela receita federal
+          example: "73677831148"
+        partnerCivilName:
+          maxLength: 70
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Nome civil completo da pessoa natural. (Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, com o qual será identificada por toda a sua vida, bem como após a sua morte)
+          example: Elza Milena Stefany Teixeira
+        productsServicesType:
+          maxItems: 5
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/EnumProductServiceType'
+        procurators:
+          minItems: 1
+          type: array
+          description: Lista dos representantes. De preenchimento obrigatório se houver representante.
+          items:
+            $ref: '#/components/schemas/PersonalProcurator'
+        policies:
+          minItems: 1
+          type: array
+          description: "Lista deve conter todas os contratos vigentes do cliente na instituição transmissora.    \n"
+          items:
+            $ref: '#/components/schemas/PersonalPolicies'
+      additionalProperties: false
+      description: Objeto que reúne as informações relativas ao relacionamento do cliente junto à Instituição. Considera-se relacionamento as informações que permitam conhecer desde quando a pessoa consultada é cliente da instituição, bem como um indicador dos produtos e serviços que ela consome atualmente e seus representantes
+    PersonalIdentificationData:
+      required:
+      - brandName
+      - civilName
+      - companyCnpj
+      - companyName
+      - contact
+      - document
+      - hasBrazilianNationality
+      - personalId
+      - updateDateTime
+      type: object
+      properties:
+        updateDateTime:
+          maxLength: 20
+          pattern: ^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])T(?:[01]\d|2[0123]):(?:[012345]\d):(?:[012345]\d)Z$
+          type: string
+          format: date-time
+          example: 2021-05-21T08:30:00Z
+        personalId:
+          maxLength: 100
+          pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+          type: string
+          description: Um identificador único e imutável usado para identificar o recurso cliente pessoa natural dentro da transmissora. Este identificador não tem significado para o cliente que deu o consentimento
+          example: 578-psd-71md6971kjh-2d414
+        brandName:
+          maxLength: 80
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Nome da Marca reportada pelo participante do Open Insurance. O conceito a que se refere a marca é em essência uma promessa da empresa em fornecer uma série específica de atributos, benefícios e serviços uniformes aos clientes
+          example: Organização A
+        civilName:
+          maxLength: 70
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Nome civil completo da pessoa natural (Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, com o qual será identificada por toda a sua vida, bem como após a sua morte)
+          example: Juan Kaique Cláudio Fernandes
+        companyInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessIdentificationData_companyInfo'
+        document:
+          $ref: '#/components/schemas/PersonalDocument'
+        hasBrazilianNationality:
+          type: boolean
+          description: Informa se o Cliente tem nacionalidade brasileira.
+          nullable: true
+          example: false
+        contact:
+          $ref: '#/components/schemas/PersonalContact'
+      additionalProperties: false
+      description: Conjunto de informações relativas a Identificação ou seja a ação e o efeito de identificar de forma única a pessoa natural através de seus dados cadastrais.
+    PersonalProcurator:
+      required:
+      - civilName
+      - cpfNumber
+      - type
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/EnumProcuratorsTypePersonal'
+        cpfNumber:
+          maxLength: 11
+          type: string
+          description: Número completo do CPF. O CPF é o Cadastro de Pessoa natural. Ele é um documento feito pela Receita Federal e serve para identificar os contribuintes. O CPF é uma numeração com 11 dígitos, que só mudam por decisão judicial. O documento é emitido pela receita federal
+          example: "73677831148"
+        civilName:
+          maxLength: 70
+          type: string
+          description: Nome civil completo da pessoa natural. (Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, com o qual será identificada por toda a sua vida, bem como após a sua morte)
+          example: Elza Milena Stefany Teixeira
+      additionalProperties: false
+    PersonalQualificationData:
+      required:
+      - informedIncome
+      - occupation
+      - pepIdentification
+      - updateDateTime
+      type: object
+      properties:
+        updateDateTime:
+          maxLength: 20
+          type: string
+          description: Data e hora da atualização do bloco, conforme especificação RFC-3339
+          format: date-time
+          example: 2021-05-21T08:30:00Z
+        pepIdentification:
+          type: string
+          description: 'Campo deve ser preenchido com a exposição política do segurado:'
+          enum:
+          - NAO_EXPOSTO
+          - PESSOA_POLITICAMENTE_EXPOSTA
+          - PESSOA_PROXIMA_A_PESSOA_POLITICAMENTE_EXPOSTA
+          - SEM_INFORMACAO
+        occupation:
+          maxLength: 100
+          type: string
+          description: Campo deve conter a profissão
+        lifePensionPlans:
+          type: string
+          description: Condição de proponente qualificado, aplicável à contratação de planos de previdência e vida por sobrevivência
+          enum:
+          - SIM
+          - NAO
+          - NAO_SE_APLICA
+        informedRevenue:
+          $ref: '#/components/schemas/BusinessQualificationData_informedRevenue'
+        civilStatusCode:
+          $ref: '#/components/schemas/EnumCivilStatusCode'
+        birthDate:
+          maxLength: 10
+          pattern: ^(\d{4})-(1[0-2]|0?[1-9])-(3[01]|[12][0-9]|0?[1-9])$
+          type: string
+          description: Data de nascimento, conforme especificação RFC-3339
+          format: date
+          example: 2021-05-21
+        filiation:
+          $ref: '#/components/schemas/PersonalQualificationData_filiation'
+      additionalProperties: false
+      description: Conjunto de informações relativas ao processo de qualificação.
+    ResponseBusinessCustomersComplimentaryInformation:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessComplimentaryInformationData'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      additionalProperties: false
+    ResponseBusinessCustomersIdentification:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessIdentificationData'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      additionalProperties: false
+    ResponseBusinessCustomersQualification:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessQualificationData'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      additionalProperties: false
+    ResponseError:
+      required:
+      - errors
+      type: object
+      properties:
+        errors:
+          maxItems: 13
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseError_errors'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      additionalProperties: false
+    ResponsePersonalCustomersComplimentaryInformation:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalComplimentaryInformationData'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      additionalProperties: false
+    ResponsePersonalCustomersIdentification:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalIdentificationData'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      additionalProperties: false
+    ResponsePersonalCustomersQualification:
+      required:
+      - data
+      - links
+      - meta
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalQualificationData'
+        links:
+          $ref: '#/components/schemas/Links'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      additionalProperties: false
+    XFapiInteractionId:
+      maxLength: 100
+      pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+      type: string
+      description: Um UID [RFC4122](https://tools.ietf.org/html/rfc4122) usado como um ID de correlação. Se fornecido, o transmissor deve "reproduzir" esse valor no cabeçalho de resposta.
+    BusinessIdentificationData_companyInfo:
+      required:
+      - cnpjNumber
+      - name
+      properties:
+        cnpjNumber:
+          maxLength: 14
+          pattern: \d{14}|^NA$
+          type: string
+          description: "Número completo do CNPJ da instituição responsável pelo Cadastro - o CNPJ corresponde ao número de inscrição no Cadastro de Pessoa Jurídica. \nDeve-se ter apenas os números do CNPJ, sem máscara\n"
+          example: "01773247000563"
+        name:
+          maxLength: 70
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Nome da Instituição, pertencente à Marca, responsável pela Dependência
+          example: Empresa da Organização A
+      description: Informações referente a sociedade a qual a marca pertence.
+      example: null
+    BusinessQualificationData_informedRevenue:
+      required:
+      - currency
+      - maxLimit
+      - minLimit
+      type: object
+      properties:
+        minLimit:
+          maxLength: 20
+          minLength: 0
+          pattern: ^-?\d{1,15}\.\d{2,4}$
+          type: number
+          description: |
+            Campo aberto para informar o máximo da faixa de faturamento, quando informado
+            Obs1: quando não informado, retornar com zero
+            Obs2: se for um valor preciso, informar o valor exato apenas no campo obrigatório (Faturamento - Limite mínimo da faixa de renda)
+            Obs3: se for range, informar o mínimo e máximo
+            Obs4: se for "acima de", informar só o valor mínimo
+          nullable: true
+          example: 100000.04
+        maxLimit:
+          maxLength: 20
+          minLength: 0
+          pattern: ^-?\d{1,15}\.\d{2,4}$
+          type: number
+          description: "Campo aberto para informar o máximo da faixa de faturamento, quando informado\nObs1: quando não informado, retornar com zero\nObs2: se for um valor preciso, informar o valor exato apenas no campo obrigatório (Renda - Limite mínimo da faixa de renda)\nObs3: se for range, informar o mínimo e máximo\nObs4: se for \"acima de\", informar só o valor mínimo    \n"
+          nullable: true
+          example: 100000.04
+        currency:
+          maxLength: 3
+          pattern: ^(\w{3}){1}$|^NA$
+          type: string
+          description: Moeda referente ao valor do patrimônio, segundo modelo ISO-4217.
+          example: BRL
+      additionalProperties: false
+      example: null
+    PersonalQualificationData_filiation:
+      required:
+      - father
+      - mother
+      type: object
+      properties:
+        father:
+          maxLength: 70
+          pattern: '[\w\W\s]*'
+          type: string
+          description: "Nome civil completo da pessoa relativa à filiação.\n(Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, \ncom o qual será identificada por toda a sua vida, bem como após a sua morte)\n"
+          example: Marcelo Cláudio Fernandes
+        mother:
+          maxLength: 70
+          pattern: '[\w\W\s]*'
+          type: string
+          description: "Nome civil completo da pessoa relativa à filiação.\n(Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, \ncom o qual será identificada por toda a sua vida, bem como após a sua morte)\n"
+          example: Elza Milena Stefany Teixeira
+      additionalProperties: false
+      example: null
+    ResponseError_errors:
+      required:
+      - code
+      - detail
+      - title
+      type: object
+      properties:
+        code:
+          maxLength: 255
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Código de erro específico do endpoint
+        title:
+          maxLength: 255
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Título legível por humanos deste erro específico
+        detail:
+          maxLength: 2048
+          pattern: '[\w\W\s]*'
+          type: string
+          description: Descrição legível por humanos deste erro específico
+      additionalProperties: false
+      example: null
+  responses:
+    OKResponsePersonalCustomersIdentification:
+      description: Dados sobre identificação pessoa física.
+      headers:
+        x-fapi-interaction-id:
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/XFapiInteractionId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponsePersonalCustomersIdentification'
+    OKResponsePersonalCustomersQualification:
+      description: Dados sobre qualificação da pessoa física
+      headers:
+        x-fapi-interaction-id:
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/XFapiInteractionId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponsePersonalCustomersQualification'
+    OKResponsePersonalCustomersComplimentaryInformation:
+      description: Dados sobre relacionamento da pessoa física
+      headers:
+        x-fapi-interaction-id:
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/XFapiInteractionId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponsePersonalCustomersComplimentaryInformation'
+    OKResponseBusinessCustomersIdentification:
+      description: Dados sobre identificação pessoa jurídica
+      headers:
+        x-fapi-interaction-id:
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/XFapiInteractionId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseBusinessCustomersIdentification'
+    OKResponseBusinessCustomersQualification:
+      description: Dados sobre qualificação pessoa jurídica
+      headers:
+        x-fapi-interaction-id:
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/XFapiInteractionId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseBusinessCustomersQualification'
+    OKResponseBusinessCustomersComplimentaryInformation:
+      description: Dados sobre relacionamento pessoa jurídica
+      headers:
+        x-fapi-interaction-id:
+          style: simple
+          explode: false
+          schema:
+            $ref: '#/components/schemas/XFapiInteractionId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseBusinessCustomersComplimentaryInformation'
+    BadRequest:
+      description: A requisição foi malformada, omitindo atributos obrigatórios, seja no payload ou através de atributos na URL.
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    Forbidden:
+      description: O token tem escopo incorreto ou uma política de segurança foi violada
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    InternalServerError:
+      description: Ocorreu um erro no gateway da API ou no microsserviço
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    MethodNotAllowed:
+      description: O consumidor tentou acessar o recurso com um método não suportado
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    NotAcceptable:
+      description: A solicitação continha um cabeçalho Accept diferente dos tipos de mídia permitidos ou um conjunto de caracteres diferente de UTF-8
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    NotFound:
+      description: O recurso solicitado não existe ou não foi implementado
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    TooManyRequests:
+      description: A operação foi recusada, pois muitas solicitações foram feitas dentro de um determinado período ou o limite global de requisições concorrentes foi atingido
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+    Unauthorized:
+      description: Cabeçalho de autenticação ausente/inválido ou token inválido
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseError'
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: Cabeçalho HTTP padrão. Permite que as credenciais sejam fornecidas dependendo do tipo de recurso solicitado
+      required: true
+      style: simple
+      explode: false
+      schema:
+        maxLength: 2048
+        pattern: '[\w\W\s]*'
+        type: string
+    page:
+      name: page
+      in: query
+      description: Número da página que está sendo requisitada (o valor da primeira página é 1).
+      required: false
+      style: form
+      explode: true
+      schema:
+        minimum: 1
+        type: integer
+        format: int32
+        default: 1
+    pageSize:
+      name: page-size
+      in: query
+      description: Quantidade total de registros por páginas.
+      required: false
+      style: form
+      explode: true
+      schema:
+        maximum: 1000
+        minimum: 1
+        type: integer
+        format: int32
+        default: 25
+    xCustomerUserAgent:
+      name: x-customer-user-agent
+      in: header
+      description: Indica o user-agent que o usuário utiliza.
+      required: false
+      style: simple
+      explode: false
+      schema:
+        maxLength: 100
+        minLength: 1
+        pattern: '[\w\W\s]*'
+        type: string
+    xFapiAuthDate:
+      name: x-fapi-auth-date
+      in: header
+      description: 'Data em que o usuário logou pela última vez com o receptor. Representada de acordo com a [RFC7231](https://tools.ietf.org/html/rfc7231).Exemplo: Sun, 10 Sep 2017 19:43:31 UTC'
+      required: false
+      style: simple
+      explode: false
+      schema:
+        maxLength: 29
+        minLength: 29
+        pattern: ^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} (GMT|UTC)$
+        type: string
+    xFapiCustomerIpAddress:
+      name: x-fapi-customer-ip-address
+      in: header
+      description: O endereço IP do usuário se estiver atualmente logado com o receptor.
+      required: false
+      style: simple
+      explode: false
+      schema:
+        maxLength: 100
+        minLength: 1
+        pattern: '[\w\W\s]*'
+        type: string
+    xFapiInteractionId:
+      name: x-fapi-interaction-id
+      in: header
+      description: Um UID [RFC4122](https://tools.ietf.org/html/rfc4122) usado como um ID de correlação. Se fornecido, o transmissor deve "reproduzir" esse valor no cabeçalho de resposta.
+      required: false
+      style: simple
+      explode: false
+      schema:
+        maxLength: 100
+        minLength: 1
+        pattern: ^[a-zA-Z0-9][a-zA-Z0-9\-]{0,99}$
+        type: string
+  securitySchemes:
+    OAuth2Security:
+      type: oauth2
+      description: Fluxo OAuth necessário para que a receptora tenha acesso aos dados na instituição transmissora. Requer o processo de redirecionamento e autenticação do usuário a que se referem os dados.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://authserver.example/authorization
+          tokenUrl: https://authserver.example/token
+          scopes:
+            customers: Escopo necessário para acesso à API Customers. O controle dos endpoints específicos é feito via permissions.
