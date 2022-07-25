@@ -1907,7 +1907,7 @@ components:
           type: string
           description: 'Campo deve ser preenchido com a exposição política do segurado:'
           enum:
-          - NAO_EXPOSTOITEMS
+          - NAO_EXPOSTO
           - PESSOA_POLITICAMENTE_EXPOSTA
           - PESSOA_PROXIMA_A_PESSOA_POLITICAMENTE_EXPOSTA
           - SEM_INFORMACAO
