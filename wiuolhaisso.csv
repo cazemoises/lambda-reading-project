@@ -1,0 +1,178 @@
+BusinessComplimentaryInformationData.updateDateTime;Data e hora da atualização do bloco de Relacionamento, conforme especificação RFC-3339, formato UTC.
+BusinessComplimentaryInformationData.startDate;Campo deve ser preenchido com a data da apólice/contrato vigente mais antiga
+BusinessComplimentaryInformationData.EnumProductServiceType;Lista com a relação dos produtos e serviços com contrato vigente.
+BusinessComplimentaryInformationData.BusinessProcurator.type;Tipo de representante.
+Representante legal - Nome Civil completo da Pessoa Natural que represente uma entidade ou uma empresa e é nomeado em seu ato constitutivo, ou seja, no contrato social ou estatuto social.
+Procurador - é qualquer pessoa que represente a Pessoa Natural em algum negócio, mediante autorização escrita do mesmo.
+
+BusinessComplimentaryInformationData.BusinessProcurator.cnpjCpfNumber;Identificação do Representante Legal ou Procurador. Número do cadastro nas Receita Federal  (Preencher com CPF ou CNPJ sem formatação)
+BusinessComplimentaryInformationData.BusinessProcurator.civilName;Nome civil completo ou Razão Social
+BusinessComplimentaryInformationData.BusinessPolicies.number;Número do da apólice individual, ou contrato, ou certificado ou bilhete.
+
+BusinessComplimentaryInformationData.BusinessPolicies;{'required': ['number', 'type'], 'type': 'object', 'properties': {'number': {'maxLength': 20, 'pattern': '^\\d{0,99}$', 'type': 'string', 'description': 'Número do da apólice individual, ou contrato, ou certificado ou bilhete.\n', 'example': '24550245'}, 'type': {'type': 'string', 'example': 'APOLICE', 'enum': ['APOLICE', 'CONTRATO', 'CERTIFICADO', 'BILHETE']}}, 'additionalProperties': False}APOLICE, CONTRATO, CERTIFICADO, BILHETE
+BusinessIdentificationData.updateDateTime;Data e hora da atualização do bloco, conforme especificação RFC-3339
+BusinessIdentificationData.businessId;Um identificador único e imutável usado para identificar o recurso cliente pessoa jurídica dentro da transmissora. Este identificador não tem significado para o cliente que deu o consentimento
+BusinessIdentificationData.brandName;Nome da Marca reportada pelo participante do Open Insurance. O conceito a que se refere a 'marca' é em essência uma promessa da empresa em fornecer uma série específica de atributos, benefícios e serviços uniformes aos clientes
+
+BusinessIdentificationData.BusinessIdentificationData_companyInfo.cnpjNumber;Número completo do CNPJ da instituição responsável pelo Cadastro - o CNPJ corresponde ao número de inscrição no Cadastro de Pessoa Jurídica. 
+Deve-se ter apenas os números do CNPJ, sem máscara
+
+BusinessIdentificationData.BusinessIdentificationData_companyInfo.name;Nome da Instituição, pertencente à Marca, responsável pela Dependência
+BusinessIdentificationData.businessName;Razão social da empresa consultada é o termo registrado sob o qual uma pessoa jurídica (PJ) se individualiza e exerce suas atividades. Também pode ser chamada por denominação social ou firma empresarial
+BusinessIdentificationData.businessRegisterOriginCountry;Código do pais de acordo com o código “alpha3” do ISO-3166
+Não existe esse parâmetro document
+BusinessProcurator.type;Tipo de representante.
+Representante legal - Nome Civil completo da Pessoa Natural que represente uma entidade ou uma empresa e é nomeado em seu ato constitutivo, ou seja, no contrato social ou estatuto social.
+Procurador - é qualquer pessoa que represente a Pessoa Natural em algum negócio, mediante autorização escrita do mesmo.
+
+BusinessProcurator.cnpjCpfNumber;Identificação do Representante Legal ou Procurador. Número do cadastro nas Receita Federal  (Preencher com CPF ou CNPJ sem formatação)
+BusinessProcurator.civilName;Nome civil completo ou Razão Social
+BusinessQualificationData.updateDateTime;Data e hora da atualização do bloco, conforme especificação RFC-3339
+BusinessQualificationData.lifePensionPlans;Condição de proponente qualificado, aplicável à contratação de planos de previdência e vida por sobrevivência
+Não existe esse parâmetro informedRevenue
+BusinessContact.BusinessPostalAddress.address;Corresponde ao endereço residencial do cliente.
+BusinessContact.BusinessPostalAddress.number;Número (Logradouro)
+BusinessContact.BusinessPostalAddress.additionalInfo;Alguns logradouros ainda necessitam ser especificados por meio de complemento.
+BusinessContact.BusinessPostalAddress.districtName;Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.
+BusinessContact.BusinessPostalAddress.townName;Localidade: O nome da localidade corresponde à designação da cidade ou município no qual o endereço está localizado.
+
+Não existe esse parâmetro countrySubDivision
+Não existe esse parâmetro type
+BusinessContact.CustomerEmail.email;Endereço de email
+PersonalContact.PersonalPostalAddress;{'required': ['address', 'country', 'countrySubDivision', 'number', 'postCode', 'townName', 'type'], 'type': 'object', 'properties': {'type': {'type': 'string', 'example': 'RESIDENCIAL', 'enum': ['COBRANCA,', 'RESIDENCIAL,', 'COMERCIAL']}, 'address': {'maxLength': 150, 'pattern': '[\\w\\W\\s]*', 'type': 'string', 'description': 'Corresponde ao endereço residencial do cliente.', 'example': 'Av Naburo Ykesaki, 1270'}, 'number': {'maxLength': 10, 'type': 'string', 'description': 'Número (Logradouro)'}, 'additionalInfo': {'maxLength': 30, 'pattern': '[\\w\\W\\s]*', 'type': 'string', 'description': 'Alguns logradouros ainda necessitam ser especificados por meio de complemento.', 'example': 'Fundos'}, 'districtName': {'maxLength': 50, 'pattern': '[\\w\\W\\s]*', 'type': 'string', 'description': 'Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.', 'example': 'Centro'}, 'townName': {'maxLength': 50, 'pattern': '[\\w\\W\\s]*', 'type': 'string', 'description': 'Localidade: O nome da localidade corresponde à designação da cidade ou município no qual o endereço está localizado.\n', 'example': 'Marília'}, 'countrySubDivision': {'$ref': '#/components/schemas/EnumCountrySubDivision'}, 'postCode': {'maxLength': 8, 'pattern': '\\d{8}|^NA$', 'type': 'string', 'description': "Código de Endereçamento Postal: Composto por um conjunto numérico de oito dígitos, o objetivo principal do CEP é orientar e acelerar o encaminhamento, o tratamento e a entrega de objetos postados nos Correios, por meio da sua atribuição a localidades, logradouros, unidades dos Correios, serviços, órgãos públicos, empresas e edifícios. p.ex. '01311000'.\n", 'example': '17500001'}, 'country': {'$ref': '#/components/schemas/EnumCountry'}}, 'additionalProperties': False}COBRANCA,, RESIDENCIAL,, COMERCIAL
+Não existe esse parâmetro type
+PersonalContact.CustomerEmail.email;Endereço de email
+CustomerEmail.email;Endereço de email
+Não existe esse parâmetro type
+BusinessPostalAddress.address;Corresponde ao endereço residencial do cliente.
+BusinessPostalAddress.number;Número (Logradouro)
+BusinessPostalAddress.additionalInfo;Alguns logradouros ainda necessitam ser especificados por meio de complemento.
+BusinessPostalAddress.districtName;Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.
+BusinessPostalAddress.townName;Localidade: O nome da localidade corresponde à designação da cidade ou município no qual o endereço está localizado.
+
+Não existe esse parâmetro countrySubDivision
+PersonalPostalAddress;{'required': ['address', 'country', 'countrySubDivision', 'number', 'postCode', 'townName', 'type'], 'type': 'object', 'properties': {'type': {'type': 'string', 'example': 'RESIDENCIAL', 'enum': ['COBRANCA,', 'RESIDENCIAL,', 'COMERCIAL']}, 'address': {'maxLength': 150, 'pattern': '[\\w\\W\\s]*', 'type': 'string', 'description': 'Corresponde ao endereço residencial do cliente.', 'example': 'Av Naburo Ykesaki, 1270'}, 'number': {'maxLength': 10, 'type': 'string', 'description': 'Número (Logradouro)'}, 'additionalInfo': {'maxLength': 30, 'pattern': '[\\w\\W\\s]*', 'type': 'string', 'description': 'Alguns logradouros ainda necessitam ser especificados por meio de complemento.', 'example': 'Fundos'}, 'districtName': {'maxLength': 50, 'pattern': '[\\w\\W\\s]*', 'type': 'string', 'description': 'Bairro é uma comunidade ou região localizada em uma cidade ou município de acordo com as suas subdivisões geográficas.', 'example': 'Centro'}, 'townName': {'maxLength': 50, 'pattern': '[\\w\\W\\s]*', 'type': 'string', 'description': 'Localidade: O nome da localidade corresponde à designação da cidade ou município no qual o endereço está localizado.\n', 'example': 'Marília'}, 'countrySubDivision': {'$ref': '#/components/schemas/EnumCountrySubDivision'}, 'postCode': {'maxLength': 8, 'pattern': '\\d{8}|^NA$', 'type': 'string', 'description': "Código de Endereçamento Postal: Composto por um conjunto numérico de oito dígitos, o objetivo principal do CEP é orientar e acelerar o encaminhamento, o tratamento e a entrega de objetos postados nos Correios, por meio da sua atribuição a localidades, logradouros, unidades dos Correios, serviços, órgãos públicos, empresas e edifícios. p.ex. '01311000'.\n", 'example': '17500001'}, 'country': {'$ref': '#/components/schemas/EnumCountry'}}, 'additionalProperties': False}COBRANCA,, RESIDENCIAL,, COMERCIAL
+BusinessPolicies.number;Número do da apólice individual, ou contrato, ou certificado ou bilhete.
+
+BusinessPolicies;{'required': ['number', 'type'], 'type': 'object', 'properties': {'number': {'maxLength': 20, 'pattern': '^\\d{0,99}$', 'type': 'string', 'description': 'Número do da apólice individual, ou contrato, ou certificado ou bilhete.\n', 'example': '24550245'}, 'type': {'type': 'string', 'example': 'APOLICE', 'enum': ['APOLICE', 'CONTRATO', 'CERTIFICADO', 'BILHETE']}}, 'additionalProperties': False}APOLICE, CONTRATO, CERTIFICADO, BILHETE
+Não existe esse parâmetro number
+EnumAreaCode;Número de DDD (Discagem Direta à Distância) do telefone do cliente - se houver
+EnumCountry;Lista de países.
+EnumCountrySubDivision;Enumeração referente a cada sigla da unidade da federação que identifica o estado ou o distrito federal, no qual o endereço está localizado. p.ex. 'AC'. São consideradas apenas as siglas para os estados brasileiros
+EnumCustomerPhoneType;Identificação do Tipo de telefone do cliente.
+EnumCivilStatusCode;Estado civil do cliente. 
+
+EnumProcuratorsTypePersonal;Tipo de representante.
+Representante legal - Nome Civil completo da Pessoa Natural que represente uma entidade ou uma empresa e é nomeado em seu ato constitutivo, ou seja, no contrato social ou estatuto social.
+Procurador - é qualquer pessoa que represente a Pessoa Natural em algum negócio, mediante autorização escrita do mesmo.
+
+EnumProductServiceType;Lista com a relação dos produtos e serviços com contrato vigente.
+Links.self;URI completo que gerou a resposta atual.
+Links.first;URI da primeira página que originou essa lista de resultados. Restrição - Obrigatório quando não for a primeira página da resposta
+Links.prev;URI da página anterior dessa lista de resultados. Restrição - 	Obrigatório quando não for a primeira página da resposta
+Links.next;URI da próxima página dessa lista de resultados. Restrição - Obrigatório quando não for a última página da resposta
+Links.last;URI da última página dessa lista de resultados. Restrição - Obrigatório quando não for a última página da resposta
+Meta.totalRecords;Número total de registros no resultado
+Meta.totalPages;Número total de páginas no resultado
+Meta.requestDateTime;Data e hora da consulta, conforme especificação RFC-3339, formato UTC.
+PersonalDocument.cpfNumber;Número completo do CPF. Atributo que corresponde às informações mínimas exigidas pela Regulamentação em vigor. O CPF é o Cadastro de Pessoa natural.  Ele é um documento feito pela Receita Federal e serve para identificar os contribuintes. O CPF é uma numeração com 11 dígitos, que só mudam por decisão judicial. O documento é emitido pela receita federal
+Condicional a seleção de true em hasBrazilianNationality
+
+PersonalDocument.foreignDocument;Condicional a seleção de false em hasBrazilianNationality 
+
+BusinessDocument.businesscnpjNumber;Número completo do CNPJ da Empresa consultada  - o CNPJ corresponde ao número de inscrição no Cadastro de Pessoa Jurídica. Deve-se ter apenas os números do CNPJ, sem máscara
+Condicional ao Brasil no (BRA) campo País de emissão do documento de registro
+
+BusinessDocument.businessRegisterNumberOriginCountry;Aplicável somente as pessoas jurídicas com domicílio ou sede no exterior desobrigadas de inscrição no CNPJ.
+
+PersonalComplimentaryInformationData.updateDateTime;Data e hora da atualização do bloco de Relacionamento, conforme especificação RFC-3339, formato UTC.
+PersonalComplimentaryInformationData.startDate;Campo deve ser preenchido com a data da apólice/contrato vigente mais antiga
+PersonalComplimentaryInformationData.partnerCpfNumber;Número completo do CPF. O CPF é o Cadastro de Pessoa natural. Ele é um documento feito pela Receita Federal e serve para identificar os contribuintes. O CPF é uma numeração com 11 dígitos, que só mudam por decisão judicial. O documento é emitido pela receita federal
+PersonalComplimentaryInformationData.partnerCivilName;Nome civil completo da pessoa natural. (Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, com o qual será identificada por toda a sua vida, bem como após a sua morte)
+PersonalComplimentaryInformationData.EnumProductServiceType;Lista com a relação dos produtos e serviços com contrato vigente.
+Não existe esse parâmetro type
+Não existe esse parâmetro number
+Não existe esse parâmetro updateDateTime
+Não existe esse parâmetro type
+PersonalQualificationData.updateDateTime;Data e hora da atualização do bloco, conforme especificação RFC-3339
+PersonalQualificationData.pepIdentification;Campo deve ser preenchido com a exposição política do segurado:
+PersonalQualificationData.occupation;Campo deve conter a profissão
+PersonalQualificationData.lifePensionPlans;Condição de proponente qualificado, aplicável à contratação de planos de previdência e vida por sobrevivência
+Não existe esse parâmetro informedRevenue
+ResponseBusinessCustomersComplimentaryInformation.BusinessComplimentaryInformationData.updateDateTime;Data e hora da atualização do bloco de Relacionamento, conforme especificação RFC-3339, formato UTC.
+ResponseBusinessCustomersComplimentaryInformation.BusinessComplimentaryInformationData.startDate;Campo deve ser preenchido com a data da apólice/contrato vigente mais antiga
+BusinessComplimentaryInformationData.EnumProductServiceType;Lista com a relação dos produtos e serviços com contrato vigente.
+BusinessComplimentaryInformationData.BusinessProcurator.type;Tipo de representante.
+Representante legal - Nome Civil completo da Pessoa Natural que represente uma entidade ou uma empresa e é nomeado em seu ato constitutivo, ou seja, no contrato social ou estatuto social.
+Procurador - é qualquer pessoa que represente a Pessoa Natural em algum negócio, mediante autorização escrita do mesmo.
+
+BusinessComplimentaryInformationData.BusinessProcurator.cnpjCpfNumber;Identificação do Representante Legal ou Procurador. Número do cadastro nas Receita Federal  (Preencher com CPF ou CNPJ sem formatação)
+BusinessComplimentaryInformationData.BusinessProcurator.civilName;Nome civil completo ou Razão Social
+BusinessComplimentaryInformationData.BusinessPolicies.number;Número do da apólice individual, ou contrato, ou certificado ou bilhete.
+
+BusinessComplimentaryInformationData.BusinessPolicies;{'required': ['number', 'type'], 'type': 'object', 'properties': {'number': {'maxLength': 20, 'pattern': '^\\d{0,99}$', 'type': 'string', 'description': 'Número do da apólice individual, ou contrato, ou certificado ou bilhete.\n', 'example': '24550245'}, 'type': {'type': 'string', 'example': 'APOLICE', 'enum': ['APOLICE', 'CONTRATO', 'CERTIFICADO', 'BILHETE']}}, 'additionalProperties': False}APOLICE, CONTRATO, CERTIFICADO, BILHETE
+Não existe esse parâmetro links
+ResponseBusinessCustomersIdentification.BusinessIdentificationData.updateDateTime;Data e hora da atualização do bloco, conforme especificação RFC-3339
+ResponseBusinessCustomersIdentification.BusinessIdentificationData.businessId;Um identificador único e imutável usado para identificar o recurso cliente pessoa jurídica dentro da transmissora. Este identificador não tem significado para o cliente que deu o consentimento
+ResponseBusinessCustomersIdentification.BusinessIdentificationData.brandName;Nome da Marca reportada pelo participante do Open Insurance. O conceito a que se refere a 'marca' é em essência uma promessa da empresa em fornecer uma série específica de atributos, benefícios e serviços uniformes aos clientes
+
+BusinessIdentificationData.BusinessIdentificationData_companyInfo.cnpjNumber;Número completo do CNPJ da instituição responsável pelo Cadastro - o CNPJ corresponde ao número de inscrição no Cadastro de Pessoa Jurídica. 
+Deve-se ter apenas os números do CNPJ, sem máscara
+
+BusinessIdentificationData.BusinessIdentificationData_companyInfo.name;Nome da Instituição, pertencente à Marca, responsável pela Dependência
+ResponseBusinessCustomersIdentification.BusinessIdentificationData.businessName;Razão social da empresa consultada é o termo registrado sob o qual uma pessoa jurídica (PJ) se individualiza e exerce suas atividades. Também pode ser chamada por denominação social ou firma empresarial
+ResponseBusinessCustomersIdentification.BusinessIdentificationData.businessRegisterOriginCountry;Código do pais de acordo com o código “alpha3” do ISO-3166
+Não existe esse parâmetro document
+Não existe esse parâmetro links
+ResponseBusinessCustomersQualification.BusinessQualificationData.updateDateTime;Data e hora da atualização do bloco, conforme especificação RFC-3339
+ResponseBusinessCustomersQualification.BusinessQualificationData.lifePensionPlans;Condição de proponente qualificado, aplicável à contratação de planos de previdência e vida por sobrevivência
+Não existe esse parâmetro informedRevenue
+Não existe esse parâmetro links
+ResponseError.ResponseError_errors.code;Código de erro específico do endpoint
+ResponseError.ResponseError_errors.title;Título legível por humanos deste erro específico
+ResponseError.ResponseError_errors.detail;Descrição legível por humanos deste erro específico
+Não existe esse parâmetro meta
+ResponsePersonalCustomersComplimentaryInformation.PersonalComplimentaryInformationData.updateDateTime;Data e hora da atualização do bloco de Relacionamento, conforme especificação RFC-3339, formato UTC.
+ResponsePersonalCustomersComplimentaryInformation.PersonalComplimentaryInformationData.startDate;Campo deve ser preenchido com a data da apólice/contrato vigente mais antiga
+ResponsePersonalCustomersComplimentaryInformation.PersonalComplimentaryInformationData.partnerCpfNumber;Número completo do CPF. O CPF é o Cadastro de Pessoa natural. Ele é um documento feito pela Receita Federal e serve para identificar os contribuintes. O CPF é uma numeração com 11 dígitos, que só mudam por decisão judicial. O documento é emitido pela receita federal
+ResponsePersonalCustomersComplimentaryInformation.PersonalComplimentaryInformationData.partnerCivilName;Nome civil completo da pessoa natural. (Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, com o qual será identificada por toda a sua vida, bem como após a sua morte)
+PersonalComplimentaryInformationData.EnumProductServiceType;Lista com a relação dos produtos e serviços com contrato vigente.
+Não existe esse parâmetro type
+Não existe esse parâmetro number
+Não existe esse parâmetro links
+Não existe esse parâmetro updateDateTime
+Não existe esse parâmetro links
+ResponsePersonalCustomersQualification.PersonalQualificationData.updateDateTime;Data e hora da atualização do bloco, conforme especificação RFC-3339
+ResponsePersonalCustomersQualification.PersonalQualificationData.pepIdentification;Campo deve ser preenchido com a exposição política do segurado:
+ResponsePersonalCustomersQualification.PersonalQualificationData.occupation;Campo deve conter a profissão
+ResponsePersonalCustomersQualification.PersonalQualificationData.lifePensionPlans;Condição de proponente qualificado, aplicável à contratação de planos de previdência e vida por sobrevivência
+Não existe esse parâmetro informedRevenue
+Não existe esse parâmetro links
+BusinessIdentificationData_companyInfo.cnpjNumber;Número completo do CNPJ da instituição responsável pelo Cadastro - o CNPJ corresponde ao número de inscrição no Cadastro de Pessoa Jurídica. 
+Deve-se ter apenas os números do CNPJ, sem máscara
+
+BusinessIdentificationData_companyInfo.name;Nome da Instituição, pertencente à Marca, responsável pela Dependência
+BusinessQualificationData_informedRevenue.minLimit;Campo aberto para informar o máximo da faixa de faturamento, quando informado
+Obs1: quando não informado, retornar com zero
+Obs2: se for um valor preciso, informar o valor exato apenas no campo obrigatório (Faturamento - Limite mínimo da faixa de renda)
+Obs3: se for range, informar o mínimo e máximo
+Obs4: se for "acima de", informar só o valor mínimo
+
+BusinessQualificationData_informedRevenue.maxLimit;Campo aberto para informar o máximo da faixa de faturamento, quando informado
+Obs1: quando não informado, retornar com zero
+Obs2: se for um valor preciso, informar o valor exato apenas no campo obrigatório (Renda - Limite mínimo da faixa de renda)
+Obs3: se for range, informar o mínimo e máximo
+Obs4: se for "acima de", informar só o valor mínimo    
+
+BusinessQualificationData_informedRevenue.currency;Moeda referente ao valor do patrimônio, segundo modelo ISO-4217.
+PersonalQualificationData_filiation.father;Nome civil completo da pessoa relativa à filiação.
+(Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, 
+com o qual será identificada por toda a sua vida, bem como após a sua morte)
+
+PersonalQualificationData_filiation.mother;Nome civil completo da pessoa relativa à filiação.
+(Direito fundamental da pessoa, o nome civil é aquele atribuído à pessoa natural desde o registro de seu nascimento, 
+com o qual será identificada por toda a sua vida, bem como após a sua morte)
+
+ResponseError_errors.code;Código de erro específico do endpoint
+ResponseError_errors.title;Título legível por humanos deste erro específico
+ResponseError_errors.detail;Descrição legível por humanos deste erro específico
